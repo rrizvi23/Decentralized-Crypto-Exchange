@@ -1,7 +1,4 @@
-// =================== CS251 DEX Project =================== // 
-//        @authors: Simon Tao '22, Mathew Hogan '22          //
-// ========================================================= //    
-// SPDX-License-Identifier: UNLICENSED
+
 pragma solidity ^0.8.0;
 
 import '../interfaces/erc20_interface.sol';
@@ -13,8 +10,8 @@ contract TokenExchange {
     using SafeMath for uint;
     address public admin;
 
-    address tokenAddr = 0x2cD37Ee5E08fA7F3346Ef94eaB991Ec4950b00d2;                              // TODO: Paste token contract address here.
-    RCoin private token = RCoin(tokenAddr);         // TODO: Replace "Token" with your token class.             
+    address tokenAddr = 0x2cD37Ee5E08fA7F3346Ef94eaB991Ec4950b00d2;                             
+    RCoin private token = RCoin(tokenAddr);               
 
     // Liquidity pool for the exchange
     uint public token_reserves = 0;
@@ -26,7 +23,7 @@ contract TokenExchange {
     uint public k;
     
     // liquidity rewards
-    uint private swap_fee_numerator = 0;       // TODO Part 5: Set liquidity providers' returns.
+    uint private swap_fee_numerator = 0;     
     uint private swap_fee_denominator = 100;
     
     event AddLiquidity(address from, uint amount);
@@ -74,26 +71,17 @@ contract TokenExchange {
         liquidity_pool[msg.sender] = liquidity_pool[msg.sender].add((sqrt(token_reserves.mul(eth_reserves))).mul(5000000000000000));
         //liquidity_pool[msg.sender] = 5000000000;
 
-        // TODO: Keep track of the initial liquidity added so the initial provider
-        //          can remove this liquidity
     }
 
-    // ============================================================
-    //                    FUNCTIONS TO IMPLEMENT
-    // ============================================================
-    /* Be sure to use the SafeMath library for all operations! */
+
     
     // Function priceToken: Calculate the price of your token in ETH.
-    // You can change the inputs, or the scope of your function, as needed.
     function priceToken()
         public
         view
         returns (uint)
     {
-        /******* TODO: Implement this function *******/
-        /* HINTS:
-            Calculate how much ETH is of equivalent worth based on the current exchange rate.
-        */
+       
         require (eth_reserves > 0);
         require (token_reserves > 0);
         return eth_reserves.mul(1000000).div(token_reserves);
@@ -101,16 +89,11 @@ contract TokenExchange {
     }
 
     // Function priceETH: Calculate the price of ETH for your token.
-    // You can change the inputs, or the scope of your function, as needed.
     function priceETH()
         public
         view
         returns (uint)
     {
-        /******* TODO: Implement this function *******/
-        /* HINTS:
-            Calculate how much of your token is of equivalent worth based on the current exchange rate.
-        */
         require (eth_reserves > 0);
         require (token_reserves > 0);
         return token_reserves.mul(1000000).div(eth_reserves);
@@ -120,18 +103,11 @@ contract TokenExchange {
     /* ========================= Liquidity Provider Functions =========================  */
 
     // Function addLiquidity: Adds liquidity given a supply of ETH (sent to the contract as msg.value)
-    // You can change the inputs, or the scope of your function, as needed.
     function addLiquidity(uint max_exchange_rate, uint min_exchange_rate)
         external
         payable
     {
-        /******* TODO: Implement this function *******/
-        /* HINTS:
-            Calculate the liquidity to be added based on what was sent in and the prices.
-            If the caller possesses insufficient tokens to equal the ETH sent, then transaction must fail.
-            Update token_reserves, eth_reserves, and k.
-            Emit AddLiquidity event.
-        */
+
         require (msg.value > 0);
         uint token_liquidity = msg.value.mul(priceETH()).div(1000000);
         require (token_liquidity <= token.balanceOf(msg.sender)); // check token reserve
@@ -139,7 +115,6 @@ contract TokenExchange {
         require((eth_reserves.add(msg.value)).mul(100).div(token_reserves.add(token_liquidity)) > min_exchange_rate);
         eth_reserves = eth_reserves.add(msg.value);
         emit Received(msg.sender, msg.value);
-        // token.approve(address(this), token_liquidity);
         token.transferFrom(msg.sender, address(this), token_liquidity); 
         token_reserves = token_reserves.add(token_liquidity);
         k = eth_reserves.mul(token_reserves);
@@ -152,18 +127,11 @@ contract TokenExchange {
 
 
     // Function removeLiquidity: Removes liquidity given the desired amount of ETH to remove.
-    // You can change the inputs, or the scope of your function, as needed.
     function removeLiquidity(uint amountETH, uint max_exchange_rate, uint min_exchange_rate)
         public 
         payable
     {
-        /******* TODO: Implement this function *******/
-        /* HINTS:
-            Calculate the amount of your tokens that should be also removed.
-            Transfer the ETH and Token to the provider.
-            Update token_reserves, eth_reserves, and k.
-            Emit RemoveLiquidity event.
-        */
+
         require (amountETH > 0, "test10");
         uint token_liquidity = amountETH.mul(priceETH()).div(1000000);
         require (token_liquidity < token_reserves, "you are trying to empty the pool");
@@ -184,23 +152,17 @@ contract TokenExchange {
     }
 
     // Function removeAllLiquidity: Removes all liquidity that msg.sender is entitled to withdraw
-    // You can change the inputs, or the scope of your function, as needed.
     function removeAllLiquidity(uint max_exchange_rate, uint min_exchange_rate)
         external
         payable
     {
-        /******* TODO: Implement this function *******/
-        /* HINTS:
-            Decide on the maximum allowable ETH that msg.sender can remove.
-            Call removeLiquidity().
-        */
+
         //maxETH = liquidity_pool[msg.sender].mul(eth_reserves).div(sqrt(k))
         require(sqrt(k) > 0, "fuckmylife");
         require(liquidity_pool[msg.sender].div(sqrt(k)) != 1);
         removeLiquidity(liquidity_pool[msg.sender].mul(eth_reserves).div(sqrt(k)), max_exchange_rate, min_exchange_rate);
     }
 
-    /***  Define helper functions for liquidity management here as needed: ***/
     function sqrt(uint x) public pure returns (uint y) {
         uint z = x.add(1).div(2);
         y = x;
@@ -221,23 +183,7 @@ contract TokenExchange {
         external 
         payable
     {
-        /******* TODO: Implement this function *******/
-        /* HINTS:
-            Calculate amount of ETH should be swapped based on exchange rate.
-            Transfer the ETH to the provider.
-            If the caller possesses insufficient tokens, transaction must fail.
-            If performing the swap would exhaust total ETH supply, transaction must fail.
-            Update token_reserves and eth_reserves.
 
-            Part 4: 
-                Expand the function to take in addition parameters as needed.
-                If current exchange_rate > slippage limit, abort the swap.
-            
-            Part 5:
-                Only exchange amountTokens * (1 - liquidity_percent), 
-                    where % is sent to liquidity providers.
-                Keep track of the liquidity fees to be added.
-        */
         require (amountTokens < token.balanceOf(msg.sender));
         require(amountTokens < token_reserves, "checker");
         uint amountETH = amountTokens.mul(priceToken()).div(1000000);
@@ -253,7 +199,6 @@ contract TokenExchange {
 
 
         /***************************/
-        // DO NOT MODIFY BELOW THIS LINE
         /* Check for x * y == k, assuming x and y are rounded to the nearest integer. */
         // Check for Math.abs(token_reserves * eth_reserves - k) < (token_reserves + eth_reserves + 1));
         //   to account for the small decimal errors during uint division rounding.
@@ -271,27 +216,11 @@ contract TokenExchange {
 
     // Function swapETHForTokens: Swaps ETH for your tokens.
     // ETH is sent to contract as msg.value.
-    // You can change the inputs, or the scope of your function, as needed.
     function swapETHForTokens(uint max_exchange_rate)
         external
         payable 
     {
-        /******* TODO: Implement this function *******/
-        /* HINTS:
-            Calculate amount of your tokens should be swapped based on exchange rate.
-            Transfer the amount of your tokens to the provider.
-            If performing the swap would exhaust total token supply, transaction must fail.
-            Update token_reserves and eth_reserves.
 
-            Part 4: 
-                Expand the function to take in addition parameters as needed.
-                If current exchange_rate > slippage limit, abort the swap. 
-            
-            Part 5: 
-                Only exchange amountTokens * (1 - %liquidity), 
-                    where % is sent to liquidity providers.
-                Keep track of the liquidity fees to be added.
-        */
         uint amountTokens = msg.value.mul(priceETH()).div(1000000);
         require((token_reserves.add(amountTokens)).mul(100).div(eth_reserves.add(msg.value)) < max_exchange_rate, "slippage issue2");
         require (amountTokens < token_reserves);
@@ -302,7 +231,7 @@ contract TokenExchange {
         
 
         /**************************/
-        // DO NOT MODIFY BELOW THIS LINE
+
         /* Check for x * y == k, assuming x and y are rounded to the nearest integer. */
         // Check for Math.abs(token_reserves * eth_reserves - k) < (token_reserves + eth_reserves + 1));
         //   to account for the small decimal errors during uint division rounding.
