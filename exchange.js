@@ -1,20 +1,15 @@
-// =================== CS251 DEX Project =================== //
-//        @authors: Simon Tao '22, Mathew Hogan '22          //
-// ========================================================= //
-
 // sets up web3.js
 const web3 = new Web3(Web3.givenProvider || "ws://localhost:8545");
 
-const exchange_name = 'RRExchange'; // TODO: fill in the name of your exchange
+const exchange_name = 'RRExchange'; 
 
-const token_name = 'RCoin';             // TODO: replace with name of your token
-const token_symbol = 'RC';               // TODO: replace with symbol for your token
+const token_name = 'RCoin';           
+const token_symbol = 'RC';           
 
 
 // =============================================================================
 //         ABIs and Contract Addresses: Paste Your ABIs/Addresses Here
 // =============================================================================
-// TODO: Paste your token contract address and ABI here:
 const token_address = '0x2cD37Ee5E08fA7F3346Ef94eaB991Ec4950b00d2';
 const token_abi = [
 	{
@@ -306,7 +301,6 @@ const token_abi = [
 ];
 const token_contract = new web3.eth.Contract(token_abi, token_address);
 
-// TODO: Paste your exchange address and ABI here
 const exchange_address = '0x91DD9837Bc2277fb1a9D617B4E3268adF1e0F9db';
 const exchange_abi = [
 	{
@@ -603,12 +597,6 @@ const exchange_contract = new web3.eth.Contract(exchange_abi, exchange_address);
 
 
 
-// =============================================================================
-//                              Provided Functions
-// =============================================================================
-// Reading and understanding these should help you implement the below functions
-
-/*** INIT ***/
 async function init() {
     var poolState = await getPoolState();
     if (poolState['token_liquidity'] === 0
@@ -622,7 +610,6 @@ async function init() {
         // initialize pool with equal amounts of ETH and tokens, so exchange rate begins as 1:1
         await exchange_contract.methods.createPool(total_supply).send({from:web3.eth.defaultAccount, value : total_supply, gas : 999999});
 
-        // All accounts start with 0 of your tokens. Thus, be sure to swap before adding liquidity.
     }
 }
 
@@ -638,19 +625,12 @@ async function getPoolState() {
     };
 }
 
-// This is a log function, provided if you want to display things to the page instead of the
-// JavaScript console. It may be useful for debugging but usage is not required.
-// Pass in a discription of what you're printing, and then the object to print
+
 function log(description, obj) {
     $("#log").html($("#log").html() + description + ": " + JSON.stringify(obj, null, 2) + "\n\n");
 }
 
-// ============================================================
-//                    FUNCTIONS TO IMPLEMENT
-// ============================================================
 
-// Note: maxSlippagePct will be passed in as an int out of 100.
-// Be sure to divide by 100 for your calculations.
 
 /*** ADD LIQUIDITY ***/
 async function addLiquidity(amountEth, maxSlippagePct) {
@@ -693,7 +673,7 @@ async function swapETHForTokens(amountETH, maxSlippagePct) {
 }
 
 // =============================================================================
-//                           	UI (DO NOT MOFIDY)
+//                           	UI
 // =============================================================================
 
 
