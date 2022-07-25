@@ -1,20 +1,17 @@
-// =================== CS251 DEX Project =================== // 
-//        @authors: Simon Tao '22, Mathew Hogan '22          //
-// ========================================================= //    
+
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
 import '../interfaces/erc20_interface.sol';
 import '../libraries/safe_math.sol';
  
-// Your token contract
-// TODO: Replace "Token" with your token name!
+
 contract RCoin is IERC20 {
     using SafeMath for uint;
 
-    string public constant symbol = 'RC';                 // TODO: Give your token a symbol
-    string public constant name = 'RCoin';                   // TODO: Give your token a name
-    uint8 public constant decimals = 18;                // See note about decimals in section 2
+    string public constant symbol = 'RC';                
+    string public constant name = 'RCoin';       
+    uint8 public constant decimals = 18;                
 
     mapping(address => uint) balances;
     mapping(address => mapping(address => uint)) allowed;
@@ -36,19 +33,14 @@ contract RCoin is IERC20 {
         _;
     }
 
-    // ============================================================
-    //                    FUNCTIONS TO IMPLEMENT
-    // ============================================================
-    /* Be sure to use the SafeMath library for all operations! */
+
 
     // Function _mint: Create more of your tokens.
-    // You can change the inputs, or the scope of your function, as needed.
-    // Do not remove the AdminOnly modifier!
+
     function _mint(uint amount) 
         public 
         AdminOnly
     {
-        // require(disabled = false, "Minting disabled.");
         balances[admin] = balances[admin].add(amount);
         transfer(admin, amount);
         emit Transfer(msg.sender, admin, amount);
@@ -56,8 +48,7 @@ contract RCoin is IERC20 {
     }
 
     // Function _disable_mint: Disable future minting of your token.
-    // You can change the inputs, or the scope of your function, as needed.
-    // Do not remove the AdminOnly modifier!
+
     function _disable_mint()
         public
         AdminOnly
@@ -67,8 +58,7 @@ contract RCoin is IERC20 {
 
 
     // ============================================================
-    //               STANDARD ERC-20 IMPLEMENTATION
-    //                      DO NOT MODIFY 
+    //               STANDARD ERC-20 IMPLEMENTATION  
     // ============================================================
     
     // return total supply of the token
